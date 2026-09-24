@@ -25,9 +25,11 @@ jobs:
         env:
           MODO: ${{ github.event.inputs.modo }}
         run: python check.py
-      - name: Guardar lo ya visto
+      - name: Guardar lo ya visto (+ mantener activa la tarea)
         run: |
+          # keepalive.txt cambia 1 vez por semana: asi GitHub nunca apaga la tarea por inactividad
+          date -u +%G-W%V > keepalive.txt
           git config user.name "alerta-minvu"
           git config user.email "alerta-minvu@users.noreply.github.com"
-          git add seen.json 2>/dev/null || true
-          git diff --cached --quiet || (git commit -m "seen" && git push)
+          git add seen.json keepalive.txt 2>/dev/null || true
+          git diff --cached --quiet || (git commit -m "seen/keepalive" && git push)
